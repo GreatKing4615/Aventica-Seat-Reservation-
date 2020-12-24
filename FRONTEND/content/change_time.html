@@ -1,0 +1,101 @@
+{% extends 'header.html' %}
+{% block title %}
+  Placeholder Title
+{% endblock %}
+{% block content %}
+
+<div class="title text-center mt-3">
+    <h3>Окно бронирования места</h3>
+</div>
+
+<div class="progress m-4">
+    <div class="progress-bar" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0"
+        aria-valuemax="100">80%</div>
+</div>
+
+<div class="title text-center mt-3">
+    <p class="">Выберите подходящее время, в которое хотите поработать</p>
+</div>
+
+<div class="card" style="margin-left:20%; margin-right:15%;">
+    <div class="content">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card m-3 shadow-sm">
+                    <svg class="bd-placeholder-img card-img-top" width="100%" height="225"
+                        xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false"
+                        role="img" aria-label="Placeholder: Thumbnail">
+                        <title>Placeholder</title>
+                        <rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef"
+                            dy=".3em">совещалка</text>
+                    </svg>
+                    <div class="card-body">
+                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to
+                            additional content. This content is a little bit longer.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a type="button" class="btn btn-sm btn-outline-secondary m-1">тег</a>
+                                <a type="button" class="btn btn-sm btn-outline-secondary m-1">тег</a>
+                                <a type="button" class="btn btn-sm btn-outline-secondary m-1">тег</a>
+                                <a type="button" class="btn btn-sm btn-outline-secondary m-1">тег</a>
+                                <!-- <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button> -->
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <p>
+                <div class="container">
+                    <h6>Название комнаты</h6>
+                    <p> 5 мест, 4 этаж </p>
+                    <a>
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-flag-fill" fill="currentColor"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                d="M14.778.085A.5.5 0 0 1 15 .5V8a.5.5 0 0 1-.314.464L14.5 8l.186.464-.003.001-.006.003-.023.009a12.435 12.435 0 0 1-.397.15c-.264.095-.631.223-1.047.35-.816.252-1.879.523-2.71.523-.847 0-1.548-.28-2.158-.525l-.028-.01C7.68 8.71 7.14 8.5 6.5 8.5c-.7 0-1.638.23-2.437.477A19.626 19.626 0 0 0 3 9.342V15.5a.5.5 0 0 1-1 0V.5a.5.5 0 0 1 1 0v.282c.226-.079.496-.17.79-.26C4.606.272 5.67 0 6.5 0c.84 0 1.524.277 2.121.519l.043.018C9.286.788 9.828 1 10.5 1c.7 0 1.638-.23 2.437-.477a19.587 19.587 0 0 0 1.349-.476l.019-.007.004-.002h.001" />
+                        </svg>
+                        Москва, Тверская 7
+                    </a>
+                    <div class="card mt-3">
+                        <p>тут должен быть дропбокс со временем</p>
+                    </div>
+
+                    <form>
+                        <div class="form-group mt-5">
+                            <label for="exampleFormControlTextarea1">Комментарий</label>
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary"  data-toggle="modal" data-target="#exampleModal">Дальше</button>
+                        {% csrf_token %}
+                    </form>
+                </div>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Спасибо!</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Ваша заявка принята!
+        </div>
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+          <a type="button" href="{% url 'MainApp:my_booking' %}" class="btn btn-primary">В мои бронирования</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endblock %}

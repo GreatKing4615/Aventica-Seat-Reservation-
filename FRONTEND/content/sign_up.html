@@ -1,0 +1,33 @@
+{% extends 'header.html' %}
+{% block title %}
+  Placeholder Title
+{% endblock %}
+{%block content%}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="input-card">
+            <h1 class="text-center">Регистрация</h1>
+                
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Введите Email</label>
+                            <input type="email" class="form-control" id="exampleInputEmail1"
+                                aria-describedby="emailHelp">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Введите пароль</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Повторите пароль</label>
+                            <input type="password" class="form-control" id="RepeatPassword1">
+                        </div>
+                        <a href="index.html" class="btn btn-primary">Зарегистрироваться</a>
+                    </form>
+                </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

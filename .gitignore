@@ -1,0 +1,11 @@
+db.sqlite3
+__pycache__
+*.pyc
+ASRvenv
+.env
+*.sublime-project
+*.sublime-workspace
+*.xml
+*.iml
+.vscode
+migrations

@@ -1,0 +1,126 @@
+{% extends 'header.html' %}
+{% load tz %}
+{% block title %}
+  My Booking
+{% endblock %}
+{% block content %}
+<div class="title text-center mt-3">
+  <h3>Мои зарезервированные места</h3>
+</div>
+
+
+<div class="container">{% get_current_timezone as TIME_ZONE %} {{ TIME_ZONE }}
+  <div class="py-5 text-center"></div>
+  <div class="row">
+
+    {% if rooms %}
+    {% for room in rooms %}
+    <div class="col-md-8 order-md-2">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h6>{{ room.meeting_room.name }}</h6>
+          <p class="card-text">Забронировано с {{ room.start|time:"H:i" }}
+            до {{ room.finish|time:"H:i" }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <a type="button" data-val="{{ room.id }}" data-type="Room" data-toggle="modal"
+                data-target="#confirmDelete" class="btn btn-sm btn-danger">Отменить</a>
+            </div>
+            <small class="text-muted">{{ room.start|date:"d/m/y"}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if workplaces %}
+    {% for workplace in workplaces %}
+    <div class="col-md-8 order-md-1">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <h6>{{ workplace.workplace.name }}</h6>
+          <p class="card-text">Забронировано с {{ workplace.start|time:"H:i" }}
+            до {{ workplace.finish|time:"H:i" }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+              <a type="button" data-val="{{ workplace.id }}" data-type="Workplace" data-toggle="modal"
+                data-target="#confirmDelete" class="btn btn-sm btn-danger">Отменить</a>
+            </div>
+            <small class="text-muted">{{ workplace.start|date:"d/m/y"}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="modal fade" id="confirmDelete" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Отмена бронирования</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>Вы уверены?</p>
+          </div>
+          <div class="modal-footer">
+            <form method="post">
+              <button id="deleteBooked" type="button" class="btn btn-danger">Да</button>
+              {% csrf_token %}
+            </form>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Назад</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+  $(function () {
+    var place_id = '';
+    var place_type = '';
+    $('#confirmDelete').on('show.bs.modal', function (event) {
+      place_id = $(event.relatedTarget).data('val');
+      place_type = $(event.relatedTarget).data('type');
+    });
+
+    $("#deleteBooked").on('click', function (e) {
+      e.preventDefault();
+      let token = $('[name=csrfmiddlewaretoken]').val();
+      $.ajax({
+        headers: { 'X-CSRFToken': token },
+        type: 'POST',
+        url: "{% url 'MainApp:my_booking' %}",
+        data: { "place_id": place_id, "place_type": place_type },
+        success: function (response) {
+          console.log(response);
+          alert('Удалено');
+          // $("#afterModalLabel").text("Успех");
+          // let msg = `Забронировали с ${start} до ${finish} ${date}`
+          // $("#afterModalMessage").text(msg);
+          // $("#afterModal").modal('show');
+          location.reload();
+        },
+        error: function (response) {
+          alert("Ошибка при удалении");
+          // $("#afterModalLabel").text("Ошибка");
+          // let msg = `Забронировали с ${start} до ${finish} ${date}`
+          // $("#afterModalMessage").text(response['responseJSON']['error']);
+          // $("#afterModal").find("a").hide();
+          // $("#afterModal").modal('show');
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

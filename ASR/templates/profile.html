@@ -1,0 +1,139 @@
+{% extends 'header.html' %}
+{% block title %}
+Profile
+{% endblock %}
+{% block content %}
+
+<div class="container m-5">
+
+
+
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4>{{ request.user.first_name }} {{ request.user.last_name }}</h4>
+        </div>
+
+        <div class="card-body">
+            <!-- <img src={{request.user.default_avatar_id}} alt=""> -->
+            <hr class="featurette-divider">
+            <label for="current_timezone">Часовой пояс:</label>
+            <h6 class="card-text" id="current_timezone">{{ timezone }}</h6>
+            <div class="d-flex justify-content-between align-items-center">
+            </div>
+        </div>
+    </div>
+
+    <li class="list-group-item d-flex justify-content-between lh-condensed shadow-sm mb-4 ">
+        <div>
+            <h6>Изменить данные:</h6>
+            <div class="container">
+                <form action="" method="post">
+                    <label for="selectTimezone">Часовой пояс</label>
+                    <div class="input-group">
+                        <select class="custom-select" id="selectTimezone"
+                            aria-label="Example select with button addon">
+                            <option>Europe/Kaliningrad, UTC+02:00</option>
+                            <option>Europe/Moscow, UTC+03:00</option>
+                            <option>Europe/Volgograd, UTC+04:00</option>
+                            <option>Asia/Yekaterinburg, UTC+05:00</option>
+                            <option>Asia/Omsk, UTC+06:00</option>
+                            <option>Asia/Krasnoyarsk, UTC+07:00</option>
+                            <option>Asia/Irkutsk, UTC+08:00</option>
+                            <option>Asia/Yakutsk, UTC+09:00</option>
+                            <option>Asia/Vladivostok, UTC+10:00</option>
+                            <option>Asia/Sakhalin, UTC+11:00</option>
+                            <option>Asia/Kamchatka, UTC+12:00</option>
+                        </select>
+                        <div class="input-group-append">
+                            <button id="changeTimezone" class="btn btn-outline-primary" type="submit">Сохранить</button>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </form>
+            </div>
+
+            <div class="container mt-3">
+                <form action="" method="post">
+                    <label for="selectPassword">Пароль приложения, для отправки событий в календарь
+                        <a href="https://yandex.ru/support/passport/authorization/app-passwords.html">(Как его получить?)</a></label>
+                    <div class="input-group">
+
+                     <input type="text" class="form-control" id="appPassword" value="{{ app_password }}">
+                        <div class="input-group-append">
+                            <button id="changePassword" class="btn btn-outline-primary" type="submit">Сохранить</button>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </li>
+
+    <a href="{% url 'logout' %}" style="text-decoration: none;">
+        <li class="list-group-item d-flex justify-content-between lh-condensed shadow-sm ">
+
+            <div>
+                <h6 class="text-danger">Выйти</h6>
+                <small class="text-muted"> что-нибудь</small>
+            </div>
+
+        </li>
+    </a>
+    </ul>
+
+
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    $(function () {
+        let ctz = $("#current_timezone").text();
+        // alert(ctz);
+        $("#selectTimezone").val(ctz);
+
+        $("#changeTimezone").on('click', function(e) {
+            e.preventDefault();
+            let token = $('[name=csrfmiddlewaretoken]').val();
+            let ntz = $("#selectTimezone").val();
+            console.log(ntz);
+            $.ajax({
+              headers: {'X-CSRFToken': token},
+              type: 'POST',
+              url: "{% url 'profile' %}",
+              data: {"ntz": ntz},
+              success: function(response) {
+                console.log(response);
+                location.reload();
+              },
+              error: function(response) {
+                alert("error");
+              }
+            });
+        });
+
+        $("#changePassword").on('click', function(e) {
+            e.preventDefault();
+            let token = $('[name=csrfmiddlewaretoken]').val();
+            let app_pass = $("#appPassword").val();
+            console.log(app_pass);
+            $.ajax({
+              headers: {'X-CSRFToken': token},
+              type: 'POST',
+              url: "{% url 'profile' %}",
+              data: {"app_pass": app_pass},
+              success: function(response) {
+                console.log(response);
+                location.reload();
+              },
+              error: function(response) {
+                alert("error");
+              }
+            });
+        });
+    })
+</script>
+
+{% endblock %}

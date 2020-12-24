@@ -1,0 +1,291 @@
+{% extends 'header.html' %}
+{% load static %}
+{% block title %}
+Booking
+{% endblock %}
+{% block content %}
+
+<div class="title text-center mt-3">
+    {% if rooms %}
+    <h3>Выберите переговорную комнату</h3>
+    {% elif workplaces %}
+    <h3>Выберите место, за которым хотите поработать</h3>
+    {% endif %}
+</div>
+
+<div class="container">
+    <div class="py-5 text-center"></div>
+    <div class="row row-cols-2">
+        {% if rooms %}
+        {% for room in rooms %}
+        <div class="col">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h6>{{ room.name }}</h6>
+                    <p class="card-text">{{ room.description }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a type="button" data-val="{{ room.id }}" data-type="Room"
+                               data-toggle="modal" data-target="#bookModal"
+                               class="btn btn-sm btn-outline-secondary">Далее</a>
+                        </div>
+                        <small class="text-muted">Вместимость - {{ room.capacity }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if workplaces %}
+        {% for workplace in workplaces %}
+        <div class="col">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h6>{{ workplace.name }}</h6>
+                    <p class="card-text">{{ workplace.description|default:"No description" }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a type="button" data-val="{{ workplace.id }}" data-type="Workplace"
+                               data-toggle="modal" data-target="#bookModal" class="btn btn-sm btn-outline-secondary">Далее</a>
+                        </div>
+                        <!-- <small class="text-muted">Локация?</small> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="modal" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookModalLabel">Выберите время</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <div class="form-group">
+                            <input type="hidden" id="place_id">
+                            <input type="hidden" id="place_type">
+
+                            <label for="date">Выберите дату</label><input type="text" class="form-control"
+                                                                          id="date">
+                            <label for="time_start">Время начала</label><input type="text" class="form-control"
+                                                                               id="time_start">
+                            <label for="time_end">Время конца</label><input type="text" class="form-control"
+                                                                            id="time_end">
+
+                            <label>Повторять</label><br>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" id="rad1" type="radio" name="repeatOptions"
+                                       value="once" checked>
+                                <label class="form-check-label" for="rad1">Один раз</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" id="rad2" type="radio" name="repeatOptions"
+                                       value="current_week">
+                                <label class="form-check-label" for="rad2">До конца этой недели</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" id="rad3" type="radio" name="repeatOptions"
+                                       value="next_and_current_week">
+                                <label class="form-check-label" for="rad3">До конца следующей</label>
+                            </div>
+
+                        </div>
+                        <button id="check" type="submit" class="btn btn-primary">Проверить</button>
+                        {% csrf_token %}
+                    </form>
+                    <!-- Это должно быть колонкой справа -->
+                    <div class="form-group">
+                        <label id="unavailableLabel"></label>
+                        <ul id="unavailableList"></ul>
+                        <button disabled id="book" type="button" href="{% url 'book' %}" class="btn btn-primary">
+                            Забронировать свободные
+                        </button>
+                    </div>
+                    <!-- Это должно быть колонкой справа  -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="afterModal" tabindex="-2" aria-labelledby="afterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="afterModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="afterModalMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <a type="button" name="modalButton" href="{% url 'MainApp:my_booking' %}"
+                       class="btn btn-primary">В мои бронирования</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script>
+    $(document).ready(function() {
+        $('#bookModal').on('show.bs.modal', function (event) {
+            let place_id = $(event.relatedTarget).data('val');
+            let place_type = $(event.relatedTarget).data('type');
+            // console.log(place_type, place_id);
+            $(this).find("#place_id").val(place_id);
+            $(this).find("#place_type").val(place_type);
+            $("#unavailableLabel").text("");
+            $("#unavailableList").html("");
+            $("#book").attr("disabled", "true");
+            $("#book").show();
+        });
+
+        var default_settings = {
+        timeFormat: 'HH:mm',
+        stepMinute: 15,
+        hourMin: 9,
+        hourMax: 21,
+        }
+        start_settings = $.extend({}, default_settings);
+        start_settings['onClose'] = function(dateText, inst) {
+            $("#time_end").val(dateText);
+        }
+
+        $("#date").datepicker({
+            dateFormat: "dd/mm/y",
+            minDate: 0,
+            maxDate: 14,
+            firstDay: 1,
+        });
+        $("#time_start").timepicker(start_settings);
+        // $("#time_start").datepicker("show");
+        $("#time_end").timepicker(default_settings);
+
+        $("#check").on('click', function(e) {
+            e.preventDefault();
+            let token = $('[name=csrfmiddlewaretoken]').val();
+            let date = $("#date").val();
+            let start = $("#time_start").val();
+            let finish = $("#time_end").val();
+            let place_id = $("#place_id").val();
+            let place_type = $("#place_type").val();
+            let repeat = $('input[name="repeatOptions"]:checked').val();
+            // console.log(date, start, finish, place_id, place_type, repeat);
+            check_schedule(token, date, start, finish, place_id, place_type, repeat);
+        });
+
+        $("#book").on('click', function(e) {
+            e.preventDefault();
+            document.getElementById('book').textContent = "Подождите...";
+            let token = $('[name=csrfmiddlewaretoken]').val();
+            let date = $("#date").val();
+            let start = $("#time_start").val();
+            let finish = $("#time_end").val();
+            let place_id = $("#place_id").val();
+            let place_type = $("#place_type").val();
+            let repeat = $('input[name="repeatOptions"]:checked').val();
+            // console.log(date, start, finish, place_id, place_type, repeat);
+            book_schedule(token, date, start, finish, place_id, place_type, repeat);
+            document.getElementById('book').textContent = "Забронировать свободные";
+        });
+    });
+
+    check_schedule = function(token, date, start, finish, place_id, place_type, repeat){
+      $.ajax({
+        headers: {'X-CSRFToken': token},
+        type: 'GET',
+        url: "{% url 'check_schedule' %}",
+        data: {"date": date, "start": start,
+                "finish": finish, "repeat": repeat, 
+                "place_id": place_id, "place_type": place_type},
+        success: function(response) {
+          console.log(response);
+          if ("fail" in JSON.parse(response)){
+            $("#unavailableLabel").text("Всё выбранное занято");
+            return;
+          }
+          let unavailableLabel = "Все даты доступны";
+          let msg = "";
+          $.each(JSON.parse(response), function (k, v){
+            if (v != "Free" && v != "Whole day was free"){
+              msg += `<li>${k} - ${v}</li>`;
+            }
+          });
+          if (msg != ""){
+            unavailableLabel = "Следующие даты недоступны:";
+            buttonText = "Забронировать только свободные";
+          }
+          $("#unavailableLabel").text(unavailableLabel);
+          $("#unavailableList").html(msg);
+          $("#book").removeAttr("disabled");
+          
+        },
+        error: function(response) {
+          console.log(response);
+          // alert("error");
+          $("#unavailableLabel").text("Ошибка\n" + response['responseJSON']['error']);
+          $("#book").hide();
+        }
+      });
+    };
+
+    book_schedule = function(token, date, start, finish, place_id, place_type, repeat){
+      $.ajax({
+        headers: {'X-CSRFToken': token},
+        type: 'POST',
+        async: false,
+        url: "{% url 'book' %}",
+        data: {"date": date, "start": start,
+                "finish": finish, "repeat": repeat, 
+                "place_id": place_id, "place_type": place_type},
+        success: function(response) {
+          console.log(response);
+          // let msg = `Забронировали с ${start} до ${finish} ${date}`
+          let msg = "<ul>";
+          $.each(JSON.parse(response), function (k, v){
+            if ("from" in v){
+              msg += `<li>${k} - с ${v['from']} до ${v['to']}</li>`;
+            }
+            if ("fail" in v){
+              msg += `<li>${k} - с ${v['fail']}</li>`;
+            }
+          });
+          $("#afterModalLabel").text("Успех");
+          $("#afterModalMessage").html(msg + "</ul>");
+          $("#afterModal").modal('show');
+        },
+        error: function(response) {
+          console.log(response);
+          // alert("error");
+          $("#afterModalLabel").text("Ошибка");
+          // let msg = `Забронировали с ${start} до ${finish} ${date}`
+          $("#afterModalMessage").text(response['responseJSON']['error']);
+          $("#afterModal").find("a").hide();
+          // $("#afterModal").modal('show');
+        }
+      });
+      $("#unavailableList").html("");
+      $("#unavailableLabel").text("");
+    };
+
+
+
+
+
+</script>
+
+{% endblock %}

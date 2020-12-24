@@ -1,0 +1,32 @@
+{% extends 'header.html' %}
+{% block title %}
+  Placeholder Title
+{% endblock %}
+{% block content %}
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+        <div class="input-card">
+            <!-- <img class="mb-4 justify-content-center" src="ASR_64x64.png" alt="" width="64" height="64"> -->
+            <h1 class="text-center">Вход</h1>
+
+            <div class="card-body">
+
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Введите email</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <!-- <small id="emailHelp" class="form-text text-muted">Логин может быть любым.</small> -->
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Введите пароль</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1">
+                </div>
+                <a href="index.html" class="btn btn-primary">Войти</a>
+                <a href="sign_up.html" class="btn btn-primary">Зарегистрироваться</a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
